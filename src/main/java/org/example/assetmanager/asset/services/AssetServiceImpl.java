@@ -1,10 +1,10 @@
 package org.example.assetmanager.asset.services;
 
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.example.assetmanager.asset.entities.Asset;
 import org.example.assetmanager.asset.enums.AssetStatus;
+import org.example.assetmanager.asset.exceptions.EntityNotFoundException;
 import org.example.assetmanager.asset.repositories.AssetRepository;
 import org.example.assetmanager.user.entity.User;
 import org.example.assetmanager.user.repository.UserRepository;
@@ -71,7 +71,7 @@ public class AssetServiceImpl implements AssetService {
         asset.setStatus(AssetStatus.WITHDRAWN);
         asset.setCurrentUser(user);
 
-        return asset;
+        return assetRepository.save(asset);
     }
 
     // 3. คืนทรัพย์สิน
@@ -83,16 +83,22 @@ public class AssetServiceImpl implements AssetService {
 
         Asset asset = findAsset(assetId);
 
-        User user = findUser(userId);
+        findUser(userId);
 
         if (asset.getStatus() != AssetStatus.WITHDRAWN) {
             throw new IllegalStateException("Asset is not currently in use");
         }
 
         asset.setStatus(AssetStatus.AVAILABLE);
-        asset.setCurrentUser(user);
+        asset.setCurrentUser(null);
 
-        return asset;
+        return assetRepository.save(asset);
+    }
+
+    @Override
+    public AssetStatus getAssetStatus(Long assetId) {
+        Asset asset = findAsset(assetId);
+        return asset.getStatus();
     }
 
     private Asset findAsset(Long assetId) {
@@ -104,7 +110,7 @@ public class AssetServiceImpl implements AssetService {
         return assetRepository
                 .findById(assetId)
                 .orElseThrow(
-                        () -> new EntityNotFoundException("Asset not found"));
+                        () -> new EntityNotFoundException("Asset", assetId));
     }
 
     private User findUser(Long userId) {
@@ -115,7 +121,7 @@ public class AssetServiceImpl implements AssetService {
         return userRepository
                 .findById(userId)
                 .orElseThrow(
-                        () -> new EntityNotFoundException("User not found"));
+                        () -> new EntityNotFoundException("User", userId));
     }
 
 }
