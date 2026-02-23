@@ -6,6 +6,7 @@ import org.example.assetmanager.asset.dto.CheckoutRequest;
 import org.example.assetmanager.asset.dto.DepositRequest;
 import org.example.assetmanager.asset.dto.ReturnRequest;
 import org.example.assetmanager.asset.entities.Asset;
+import org.example.assetmanager.asset.enums.AssetStatus;
 import org.example.assetmanager.asset.services.AssetService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,20 +34,25 @@ public class AssetController {
     }
 
     @PostMapping("/{assetId}/checkout")
-    public ResponseEntity<Asset> checkoutAsset(@Valid @RequestBody CheckoutRequest request) {
+    public ResponseEntity<Asset> checkoutAsset(@PathVariable Long assetId, @Valid @RequestBody CheckoutRequest request) {
         return ResponseEntity.ok(
                 assetService.checkoutAsset(
-                        request.getAssetId(),
+                        assetId,
                         request.getUserId())
         );
     }
 
     @PostMapping("/{assetId}/return")
-    public ResponseEntity<Asset> returnAsset(@Valid @RequestBody ReturnRequest returnRequest) {
+    public ResponseEntity<Asset> returnAsset(@PathVariable Long assetId, @Valid @RequestBody ReturnRequest returnRequest) {
         return ResponseEntity.ok(
                 assetService.returnAsset(
-                        returnRequest.getAssetId(),
+                        assetId,
                         returnRequest.getUserId())
         );
+    }
+
+    @GetMapping("/{assetId}/status")
+    public ResponseEntity<AssetStatus> getAssetStatus(@PathVariable Long assetId) {
+        return ResponseEntity.ok(assetService.getAssetStatus(assetId));
     }
 }
