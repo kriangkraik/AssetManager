@@ -1,7 +1,13 @@
 package org.example.assetmanager.asset.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.example.assetmanager.asset.dto.AssetResponseDTO;
 import org.example.assetmanager.asset.dto.CheckoutRequest;
 import org.example.assetmanager.asset.dto.DepositRequest;
 import org.example.assetmanager.asset.dto.ReturnRequest;
@@ -20,7 +26,13 @@ public class AssetController {
     private final AssetService assetService;
 
     @GetMapping
-    public ResponseEntity<List<?>> getAllAsset() {
+    @Operation(summary = "Get all assets")
+    @ApiResponse(
+            responseCode = "200",
+            description = "Asset list",
+            content = @Content(array = @ArraySchema(schema = @Schema(implementation = AssetResponseDTO.class)))
+    )
+    public ResponseEntity<List<AssetResponseDTO>> getAllAsset() {
         return ResponseEntity.ok(assetService.getAllAssets());
     }
 
