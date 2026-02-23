@@ -2,6 +2,7 @@ package org.example.assetmanager.asset.services;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.example.assetmanager.asset.dto.AssetResponseDTO;
 import org.example.assetmanager.asset.entities.Asset;
 import org.example.assetmanager.asset.enums.AssetStatus;
 import org.example.assetmanager.asset.exceptions.EntityNotFoundException;
@@ -19,8 +20,11 @@ public class AssetServiceImpl implements AssetService {
     private final AssetRepository assetRepository;
     private final UserRepository userRepository;
 
-    public List<?> getAllAssets() {
-        return assetRepository.findAll();
+    public List<AssetResponseDTO> getAllAssets() {
+        return assetRepository.findAll()
+                .stream()
+                .map(AssetResponseDTO::from)
+                .toList();
     }
 
     // 1. นำฝากทรัพย์สิน
