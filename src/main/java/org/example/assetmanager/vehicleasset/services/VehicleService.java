@@ -2,6 +2,7 @@ package org.example.assetmanager.vehicleasset.services;
 
 import lombok.RequiredArgsConstructor;
 import org.example.assetmanager.asset.enums.AssetStatus;
+import org.example.assetmanager.vehicleasset.exceptions.VehicleNotFoundException;
 import org.example.assetmanager.vehicleasset.dtos.ExpiringVehicleDTO;
 import org.example.assetmanager.vehicleasset.entity.Vehicle;
 import org.example.assetmanager.vehicleasset.repositories.VehicleRepository;
@@ -9,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -21,23 +21,26 @@ public class VehicleService {
         return vehicleRepository.findAll();
     }
 
-    public Optional<Vehicle> getByLicensePlateAndChassisNumber(String licensePlate, String chassisNumber) {
-        return Optional.ofNullable(vehicleRepository
+    public Vehicle getByLicensePlateAndChassisNumber(String licensePlate, String chassisNumber) {
+        return vehicleRepository
                 .findByLicensePlateAndChassisNumber(licensePlate, chassisNumber)
-                .orElseThrow(() -> new RuntimeException("Vehicle not found")));
+                .orElseThrow(() -> new VehicleNotFoundException(
+                        "license plate " + licensePlate + " and chassis number " + chassisNumber
+                ));
     }
 
-    public Optional<Vehicle> getVehiclesByLicensePlate(String licensePlate) {
-        return Optional.ofNullable(vehicleRepository
+    public Vehicle getVehiclesByLicensePlate(String licensePlate) {
+        return vehicleRepository
                 .findByLicensePlate(licensePlate)
-                .orElseThrow(() -> new RuntimeException("Vehicle not found")));
+                .orElseThrow(() -> new VehicleNotFoundException("license plate " + licensePlate));
     }
 
-    public Optional<Vehicle> getByLicensePlateAndStatus(String licensePlate, AssetStatus status) {
-        return Optional.ofNullable(vehicleRepository
+    public Vehicle getByLicensePlateAndStatus(String licensePlate, AssetStatus status) {
+        return vehicleRepository
                 .findByLicensePlateAndStatus(licensePlate, status)
-                .orElseThrow(() -> new RuntimeException("Vehicle not found"))
-        );
+                .orElseThrow(() -> new VehicleNotFoundException(
+                        "license plate " + licensePlate + " and status " + status
+                ));
     }
 
     public List<Vehicle> getByExpiryDate(LocalDate expiryDate) {
