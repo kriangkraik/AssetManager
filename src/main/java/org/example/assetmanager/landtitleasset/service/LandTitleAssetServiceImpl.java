@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.example.assetmanager.asset.entities.Asset;
 import org.example.assetmanager.asset.enums.AssetStatus;
+import org.example.assetmanager.asset.enums.AssetType;
 import org.example.assetmanager.landtitleasset.entity.LandTitleAssetEntity;
 import org.example.assetmanager.landtitleasset.exeptions.AssetNotAvailableForCheckoutException;
 import org.example.assetmanager.landtitleasset.exeptions.InvalidProvinceException;
@@ -21,6 +22,9 @@ public class LandTitleAssetServiceImpl implements LandTitleAssetService {
 
     // 1. นำฝากทรัพย์สิน
     public LandTitleAssetEntity depositAsset(LandTitleAssetEntity landTitleAssetEntity) {
+        if (landTitleAssetEntity == null) {
+            throw new IllegalArgumentException("Land title asset payload cannot be null");
+        }
 
         if (landTitleAssetEntity.getTitleDeedNo() == null || landTitleAssetEntity.getTitleDeedNo().isBlank()) {
             throw new InvalidTitleDeedException();
@@ -30,11 +34,41 @@ public class LandTitleAssetServiceImpl implements LandTitleAssetService {
             throw new InvalidProvinceException();
         }
 
+        if (landTitleAssetEntity.getAddress() == null || landTitleAssetEntity.getAddress().isBlank()) {
+            throw new IllegalArgumentException("Address cannot be empty");
+        }
+
+        if (landTitleAssetEntity.getCodefinance() == null || landTitleAssetEntity.getCodefinance().isBlank()) {
+            throw new IllegalArgumentException("Codefinance cannot be empty");
+        }
+
+        Asset requestAsset = landTitleAssetEntity.getAsset();
+        if (requestAsset == null) {
+            throw new IllegalArgumentException("Asset is required");
+        }
+
+        Asset assetToPersist = Asset.builder()
+                .name(defaultAssetName(requestAsset.getName(), landTitleAssetEntity.getTitleDeedNo()))
+                .type(AssetType.LAND_TITLE)
+                .status(AssetStatus.AVAILABLE)
+                .currentUser(requestAsset.getCurrentUser())
+                .build();
+
         LandTitleAssetEntity newAsset = LandTitleAssetEntity.builder()
-                .titleDeedNo(landTitleAssetEntity.getTitleDeedNo())
-                .province(landTitleAssetEntity.getProvince())
+                .asset(assetToPersist)
+                .titleDeedNo(landTitleAssetEntity.getTitleDeedNo().trim())
+                .province(landTitleAssetEntity.getProvince().trim())
+                .address(landTitleAssetEntity.getAddress().trim())
+                .codefinance(landTitleAssetEntity.getCodefinance().trim())
                 .build();
         return landTitleAssetRepository.save(newAsset);
+    }
+
+    private String defaultAssetName(String name, String titleDeedNo) {
+        if (name != null && !name.isBlank()) {
+            return name.trim();
+        }
+        return "Land title " + titleDeedNo.trim();
     }
 
     // 2. เบิกทรัพย์สินไปใช้

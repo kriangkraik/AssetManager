@@ -43,18 +43,18 @@ public class LandTitleAssetResponse {
     private LocalDateTime updatedAt;
 
     public static LandTitleAssetResponse from(LandTitleAssetEntity entity) {
-        Asset asset = entity.getAsset();
+        Asset asset = entity != null ? entity.getAsset() : null;
         return LandTitleAssetResponse.builder()
-                .id(entity.getAssetId())
-                .titleDeedNo(entity.getTitleDeedNo())
-                .province(entity.getProvince())
-                .assetId(asset.getId())
-                .assetName(asset.getName())
-                .assetType(asset.getType().name())
-                .status(asset.getStatus().name())
-                .currentUser(asset.getCurrentUser())
-                .createdAt(asset.getCreatedAt())
-                .updatedAt(asset.getUpdatedAt())
+                .id(entity != null ? entity.getAssetId() : null)
+                .titleDeedNo(entity != null ? entity.getTitleDeedNo() : null)
+                .province(entity != null ? entity.getProvince() : null)
+                .assetId(asset != null ? asset.getId() : null)
+                .assetName(asset != null ? asset.getName() : null)
+                .assetType(asset != null && asset.getType() != null ? asset.getType().name() : null)
+                .status(asset != null && asset.getStatus() != null ? asset.getStatus().name() : null)
+                .currentUser(asset != null ? asset.getCurrentUser() : null)
+                .createdAt(asset != null ? asset.getCreatedAt() : null)
+                .updatedAt(asset != null ? asset.getUpdatedAt() : null)
                 .build();
     }
 }
