@@ -9,9 +9,10 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class UserServiceImpl {
+public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
+    @Override
     public Optional<User> findByUserId(Long userId) {
         return userRepository.findById(userId);
     }
